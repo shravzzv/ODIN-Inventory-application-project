@@ -2,7 +2,12 @@ doctype html
 html
   head
     title= title
+    meta(charset='utf-8')
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    meta(name="description", content="An inventory application using Express JS. It contains categories and items. This project was an assignment from The Odin Project.")
+
     link(rel="shortcut icon", href="/images/favicon.svg", type="image/x-icon")
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css", integrity="sha512-NhSC1YmyruXifcj/KFRWoC561YpHpc5Jtzgvbuzx5VozKpWvQ+4nXhPdFgmx8xqexRcpAglTj9sIBWINXa8x5w==", crossorigin="anonymous", referrerpolicy="no-referrer")
     link(rel='stylesheet', href='/stylesheets/style.css')
   body
     block content
