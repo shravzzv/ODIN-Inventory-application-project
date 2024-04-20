@@ -1,8 +1,22 @@
-body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-a {
-  color: #00B7FF;
+:root {
+  --txt-clr: black;
+  --bg-clr: white;
+
+  @media (prefers-color-scheme: dark) {
+    --txt-clr: white;
+    --bg-clr: #121212;
+  }
+}
+
+body {
+  padding: 20px;
+  margin: 0;
+  color: var(--txt-clr);
+  background-color: var(--bg-clr);
 }
