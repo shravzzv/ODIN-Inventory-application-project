@@ -2,4 +2,10 @@ extends layout
 
 block content
   h1= title
-  p Welcome to #{title}
+  p Welcome to #[em Video Games Inventory], an Express website which contains details about some of your favorite games.
+
+  h2 Dynamic content
+  p The inventory has the following record counts: 
+  ul
+    li #[strong items:] !{itemsCount}
+    li #[strong categories:] !{categoriesCount}
