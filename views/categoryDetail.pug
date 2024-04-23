@@ -1,0 +1,16 @@
+extends layout
+
+block content
+  h1 Category: #{category.name}
+  p= category.description
+  h2 Items
+  if items.length
+    ul
+      each item in items
+        li 
+          a(href=item.url) #{item.name} 
+  else 
+    p There are no items available for this category at the moment.
+  hr
+  p: a(href=category.url+'/delete') Delete category
+  p: a(href=category.url+'/update') Update category
