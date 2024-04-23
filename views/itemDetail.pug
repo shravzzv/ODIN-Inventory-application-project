@@ -1,0 +1,15 @@
+extends layout
+
+block content
+  h1 #{item.name}
+  p= item.description
+  p: strong= `₹ ${item.price.toLocaleString()}`
+  p Units available in stock: #{item.number_in_stock.toLocaleString()}
+  p Genres: 
+    each category, index in item.category
+      a(href=category.url) #{category.name}
+      if index < item.category.length - 1
+        |,&nbsp;
+  hr
+  p: a(href=item.url+'/delete') Delete item
+  p: a(href=item.url+'/update') Update item
