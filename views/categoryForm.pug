@@ -1,0 +1,23 @@
+extends layout
+
+block content
+  h1= title
+
+  form(method="POST")
+    label(for="name") Name*:
+    input#name(type="text", placeholder='Action, Adventure, etc.', name='name', minLength='3', maxLength=32, required, value=(category===undefined ? '': category.name)) 
+
+    label(for="description") Description*:
+    textarea#description(name="description", cols="30", rows="10", minLength='3', maxLength='500', required)= category===undefined ? '' : category.description
+
+    button(type="submit") Submit
+
+  if errors
+    .errors
+      h2 Errors
+      ol 
+        for error in errors
+          li!= error.msg
+          //- li! is called unescaped interpolation. It inserts the value of error.msg directly into the output without escaping HTML characters.
+
+          //- this can be risky with user generated data, but 'error' is generated using express-validator, so there's no risk.

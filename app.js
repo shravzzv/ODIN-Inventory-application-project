@@ -11,6 +11,7 @@ require('dotenv').config()
 
 const indexRouter = require('./routes/index')
 const usersRouter = require('./routes/users')
+const inventoryRouter = require('./routes/inventory')
 
 const app = express()
 
@@ -35,7 +36,7 @@ app.use(compression())
 app.use(
   helmet.contentSecurityPolicy({
     directives: {
-      'script-src': ["'self'", 'cdnjs.cloudflare.com'],
+      'script-src': ["'self'", 'cdnjs.cloudflare.com', 'www.w3.org'],
     },
   })
 )
@@ -49,6 +50,7 @@ app.use(limiter)
 
 app.use('/', indexRouter)
 app.use('/users', usersRouter)
+app.use('/inventory', inventoryRouter)
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -63,7 +65,7 @@ app.use(function (err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500)
-  res.render('error')
+  res.render('error', { title: 'Error' })
 })
 
 module.exports = app
