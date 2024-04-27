@@ -1,69 +1,12 @@
 const { body, validationResult } = require('express-validator')
+const cloudinaryUtils = require('../utils/cloudinary.util')
 const asyncHandler = require('express-async-handler')
+const multerUtils = require('../utils/multer.util')
 const Category = require('../models/category')
-const cloudinary = require('cloudinary').v2
 const Item = require('../models/item')
-const { v4: uuidv4 } = require('uuid')
-const multer = require('multer')
-const path = require('path')
 const fs = require('fs')
 
-// create an uploads folder if not already present
-if (!fs.existsSync('./public/uploads')) fs.mkdirSync('./public/uploads')
-
-const multerStorage = multer.diskStorage({
-  destination(req, file, cb) {
-    cb(null, 'public/uploads')
-  },
-  filename(req, file, cb) {
-    const { name } = path.parse(file.originalname)
-    const filename = `${uuidv4()}-${name.replaceAll('.', '_')}`
-    cb(null, filename)
-  },
-})
-
-const upload = multer({
-  storage: multerStorage,
-  limits: { fileSize: 5 * 1000000 },
-  // 5mb limit per image
-})
-
-// cloudinary setup
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-  secure: true,
-})
-
-const getUploadedUrl = async (imagePath) => {
-  const options = {
-    use_filename: true,
-    unique_filename: false,
-    overwrite: true,
-  }
-
-  try {
-    const result = await cloudinary.uploader.upload(imagePath, options)
-    return result.secure_url
-  } catch (error) {
-    console.error(error)
-  }
-}
-
-const deleteUploadedFile = async (publicId) => {
-  // publicId is the filename without .ext of the uploaded file here
-
-  const options = {
-    invalidate: true, // removes cached copies from the CDN
-  }
-  try {
-    await cloudinary.uploader.destroy(publicId, options)
-  } catch (error) {
-    console.error(error)
-  }
-}
-
+// Inventory Home page
 exports.index = asyncHandler(async (req, res) => {
   // Get total counts of categories and items in parallel
   const [categoriesCount, itemsCount] = await Promise.all([
@@ -119,7 +62,7 @@ exports.categoryCreateGet = (req, res) => {
 // Handle Category create on POST.
 exports.categoryCreatePost = [
   // upload file using multer
-  upload.single('file'),
+  multerUtils.upload.single('file'),
 
   // validate and sanitize fields.
   body('name')
@@ -167,7 +110,7 @@ exports.categoryCreatePost = [
       }
 
       // handle valid image file
-      category.imgUrl = await getUploadedUrl(req.file.path)
+      category.imgUrl = await cloudinaryUtils.getUploadedUrl(req.file.path)
       fs.unlink(req.file.path, (err) => err && console.log(err))
     }
 
@@ -218,8 +161,11 @@ exports.categoryDeletePost = asyncHandler(async (req, res) => {
     })
   } else {
     if (category.imgUrl)
-      await deleteUploadedFile(category.imgUrl.split('/').at(-1).split('.')[0])
+      await cloudinaryUtils.deleteUploadedFile(
+        category.imgUrl.split('/').at(-1).split('.')[0]
+      )
     await Category.findByIdAndDelete(req.body.categoryId)
+    // todo: use promise.all
     res.redirect('/inventory/categories')
   }
 })
@@ -243,7 +189,7 @@ exports.categoryUpdateGet = asyncHandler(async (req, res, next) => {
 // Handle Category update on POST.
 exports.categoryUpdatePost = [
   // upload file using multer
-  upload.single('file'),
+  multerUtils.upload.single('file'),
 
   // validate and sanitize the name and description fields
   body('name')
@@ -292,8 +238,10 @@ exports.categoryUpdatePost = [
 
       // handle valid image file
       const [newImgUrl] = await Promise.all([
-        getUploadedUrl(req.file.path),
-        deleteUploadedFile(category.imgUrl.split('/').at(-1).split('.')[0]),
+        cloudinaryUtils.getUploadedUrl(req.file.path),
+        cloudinaryUtils.deleteUploadedFile(
+          category.imgUrl.split('/').at(-1).split('.')[0]
+        ),
       ])
       category.imgUrl = newImgUrl
       fs.unlink(req.file.path, (err) => err && console.log(err))
