@@ -4,6 +4,8 @@ block content
   h1 Category: #{category.name}
   p= category.description
   h2 Items
+  if category.imgUrl
+    img(src=category.imgUrl, alt=category.name)
   if items.length
     ul
       each item in items
@@ -14,3 +16,4 @@ block content
   hr
   p: a(href=category.url+'/delete') Delete category
   p: a(href=category.url+'/update') Update category
+  

@@ -3,12 +3,27 @@ extends layout
 block content
   h1= title
 
-  form(method="POST")
+  form(method="POST", enctype = "multipart/form-data")
     label(for="name") Name*:
     input#name(type="text", placeholder='Action, Adventure, etc.', name='name', minLength='3', maxLength=32, required, value=(category===undefined ? '': category.name)) 
 
     label(for="description") Description*:
     textarea#description(name="description", cols="30", rows="10", minLength='3', maxLength='500', required)= category===undefined ? '' : category.description
+
+    if category===undefined 
+      input#file(type="file", name="file", required, accept='image/*')
+    else 
+      if category.imgUrl.includes('res.cloudinary.com')
+        label Cover image:  
+        .imgContainer 
+          img(src=category.imgUrl, alt=category.name)
+        input(type="hidden", name="imgUrl", value=category.imgUrl)
+        if title==='Update Category'
+          label(for="file") Update Cover image:
+          input#file(type="file", name="file", accept='image/*')
+      else 
+        label(for="file") Cover image:
+        input#file(type="file", name="file", required, accept='image/*')
 
     button(type="submit") Submit
 
@@ -17,7 +32,6 @@ block content
       h2 Errors
       ol 
         for error in errors
-          li!= error.msg
-          //- li! is called unescaped interpolation. It inserts the value of error.msg directly into the output without escaping HTML characters.
-
-          //- this can be risky with user generated data, but 'error' is generated using express-validator, so there's no risk.
+          li!= error.msg || error.message
+  
+  script(src="/javascripts/script.js", defer) 
