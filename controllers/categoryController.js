@@ -160,12 +160,12 @@ exports.categoryDeletePost = asyncHandler(async (req, res) => {
       items,
     })
   } else {
-    if (category.imgUrl)
-      await cloudinaryUtils.deleteUploadedFile(
+    await Promise.all([
+      cloudinaryUtils.deleteUploadedFile(
         category.imgUrl.split('/').at(-1).split('.')[0]
-      )
-    await Category.findByIdAndDelete(req.body.categoryId)
-    // todo: use promise.all
+      ),
+      Category.findByIdAndDelete(req.body.categoryId),
+    ])
     res.redirect('/inventory/categories')
   }
 })
