@@ -11,14 +11,18 @@ const multerStorage = multer.diskStorage({
     cb(null, 'public/uploads')
   },
   filename(req, file, cb) {
-    const { name } = path.parse(file.originalname)
-    const filename = `${uuidv4()}-${name.replaceAll('.', '_')}`
+    const { name, ext } = path.parse(file.originalname)
+    const filename = `${uuidv4()}-${name.replaceAll('.', '_')}${ext}`
     cb(null, filename)
   },
 })
 
+const fileFilter = (req, file, cb) => {
+  cb(null, true) // allowing all files
+}
+
 exports.upload = multer({
   storage: multerStorage,
-  limits: { fileSize: 5 * 1000000 },
-  // 5mb limit per image
+  limits: { fileSize: 5 * 1000000 }, // 5mb limit per image
+  fileFilter,
 })
