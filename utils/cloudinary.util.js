@@ -8,6 +8,11 @@ cloudinary.config({
   secure: true,
 })
 
+/**
+ * Uploads a given image file to Cloudinary.
+ * @param {String} imagePath - The complete local path to an image.
+ * @returns {String} - The url of the uploaded image on cloudinary.
+ */
 exports.getUploadedUrl = async (imagePath) => {
   const options = {
     use_filename: true,
@@ -23,8 +28,13 @@ exports.getUploadedUrl = async (imagePath) => {
   }
 }
 
-exports.deleteUploadedFile = async (publicId) => {
+/**
+ * Deletes an uploaded image from cloudinary.
+ * @param {string} url - A complete valid url of an image uploaded to cloudinary. Looks like https://res.cloudinary.com/dmt9s5xlh/image/upload/v1714380904/3e1a42fa2bb2-GTAIV_hero.jpg.
+ */
+exports.deleteUploadedFile = async (url) => {
   // publicId is the filename without .ext of the uploaded file
+  const publicId = url.split('/').at(-1).split('.')[0]
 
   const options = {
     invalidate: true, // removes cached copies from the CDN
