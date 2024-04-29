@@ -1,27 +1,71 @@
 extends layout
 
 block content
-  h1= title
+  //- Some elements are un escaped here because they'll only ever use sanitized data from the database or data set manually at the controller, never directly from the user input. If escaped, they might show html entities to the user directly!
 
-  form(method="post")
+  h1!= title
+
+  form(method="post", enctype = "multipart/form-data")
     label(for="name") Name*:
-    input#name(type="text", placeholder='Grand Theft Auto, etc.', name='name', minLength='3', maxLength=32, required, value=(item===undefined ? '': item.name)) 
+    input#name(type="text", placeholder='Grand Theft Auto, etc.', name='name', minLength='3', maxLength=32, required, autocomplete='on', value!=(item===undefined ? '': item.name)) 
 
     label(for="description") Description*:
-    textarea#description(name="description", cols="30", rows="10", minLength='3', maxLength='500', required)= item===undefined ? '' : item.description
-
-    label(for="price") Price*:
-    input#price(type="number", name="price", min='1', max='10000', required, value=(item === undefined ? '': item.price))
-
-    label(for="number_in_stock") Number in stock*:
-    input#number_in_stock(type="number", name="number_in_stock", min='0', max='10000', required, value=(item === undefined ? '': item.number_in_stock))
+    textarea#description(name="description", cols="30", rows="10", minLength='3', maxLength='500', required)!= item===undefined ? '' : item.description
 
     label Categories*:
     .categories
       for category in categories
         .category
-          input(type="checkbox", name="category", id=category._id, value=category._id checked=category.checked)
-          label(for=category._id) #{category.name}
+          input(type="checkbox", name="category", id=category._id, value=category._id, checked=category.checked)
+          label(for=category._id) !{category.name}
+
+    label(for="price") Price*:
+    input#price(type="number", name="price", min='1', max='10000', required, value=(item === undefined ? '': item.price))
+
+    label(for="numInStock") Number in stock*:
+    input#numInStock(type="number", name="numInStock", min='0', max='10000000', required, value=(item === undefined ? '': item.numInStock))
+
+    if item===undefined 
+      label(for="titleImg") Title logo:
+      input#titleImg(type="file", name="titleImg", required, accept='image/*')
+    else 
+      if item.titleImgUrl.includes('res.cloudinary.com')
+        label Title logo:  
+        .imgContainer 
+          img(src=item.titleImgUrl, alt!=item.name)
+        input(type="hidden", name="titleImgUrl", value=item.titleImgUrl)
+        if title==='Update Item'
+          label(for="titleImg") Update Title logo:
+          input#titleImg(type="file", name="titleImg", accept='image/*')
+      else 
+        label(for="titleImg") Title logo:
+        input#titleImg(type="file", name="titleImg", required, accept='image/*')
+
+    if item===undefined 
+      label(for="heroImg") Hero image:
+      input#heroImg(type="file", name="heroImg", required, accept='image/*')
+    else 
+      if item.heroImgUrl.includes('res.cloudinary.com')
+        label Hero image:  
+        .imgContainer 
+          img(src=item.heroImgUrl, alt!=item.name)
+        input(type="hidden", name="heroImgUrl", value=item.heroImgUrl)
+        if title==='Update Item'
+          label(for="heroImg") Update hero image:
+          input#heroImg(type="file", name="heroImg", accept='image/*')
+      else 
+        label(for="heroImg") Hero image:
+        input#heroImg(type="file", name="heroImg", required, accept='image/*')
+
+
+    label(for="publisher") Publisher:
+    input#publisher(type="text", name="publisher", required, placeholder='Rockstar games, etc.', value!=(item===undefined ? '': item.publisher), minLength='3', maxLength='32', autocomplete='on')
+
+    label(for="released") Release Date:
+    input#released(type="date", name="releaseDate", required, value=(item===undefined ? '': item.releaseDateForDateInput))
+
+    label(for="rating") Rating:
+    input#rating(type="number", name="rating", min= '0', max= '5', required, step='.1', value=(item===undefined ? '': item.rating))
 
     button(type="submit") Submit
 
@@ -30,4 +74,6 @@ block content
       h2 Errors
       ol 
         for error in errors
-          li!= error.msg
+          li!= error.msg || error.message
+
+  script(src="/javascripts/script.js", defer) 

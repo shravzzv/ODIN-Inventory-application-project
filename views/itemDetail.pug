@@ -1,15 +1,21 @@
 extends layout
 
 block content
-  h1 #{item.name}
-  p= item.description
+  //- item.description, item.publisher, category.name and item.name (for img alt) are un escaped because they'll only ever use sanitized data from the database. If escaped, might show html entities to the user!
+
+  img(src=item.titleImgUrl, alt!=item.name)
+  p!= item.description
   p: strong= `₹ ${item.price.toLocaleString()}`
-  p Units available in stock: #{item.number_in_stock.toLocaleString()}
-  p Genres: 
+  p Units available in stock: #{item.numInStock.toLocaleString()}
+  p Released: #{item.releaseDateFormatted}
+  p Publisher: !{item.publisher}
+  p Rating: #{item.rating}
+  p Categories: 
     each category, index in item.category
-      a(href=category.url) #{category.name}
+      a(href=category.url) !{category.name}
       if index < item.category.length - 1
         |,&nbsp;
+  img(src=item.heroImgUrl, alt!=item.name)
   hr
   p: a(href=item.url+'/delete') Delete item
   p: a(href=item.url+'/update') Update item

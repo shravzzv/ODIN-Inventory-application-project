@@ -1,10 +1,12 @@
 extends layout
 block content
-  h1= title
+  h1!= title
+  //- safe to unescape title because it'll never use user generated data directly. A title can come from either the res.render (title specified manually) in a controller or from the database (which stores only sanitized data).
   if items.length
     ol
       each item in items
         li 
-          a(href=item.url) #{item.name}
+          a(href=item.url) !{item.name}
+          //- item.name is using un escaped interpolation because it'll only ever use sanitized data from the database. If escaped, renders html entities on the UI!
   else
     p There are no items available at the moment. 

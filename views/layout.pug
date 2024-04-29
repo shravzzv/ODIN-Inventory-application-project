@@ -1,7 +1,9 @@
 doctype html
 html
   head
-    title= title
+    title!= title
+      //- safe to unescape title because it'll never use user generated data directly. A title can come from either the res.render (title specified manually) in a controller or from the database (which stores only sanitized data). If escaped, might display html entities to the user!
+
     meta(charset='utf-8')
     meta(name="viewport", content="width=device-width, initial-scale=1.0")
     meta(name="description", content="An inventory application using Express JS. It contains categories and items. This project was an assignment from The Odin Project.")
