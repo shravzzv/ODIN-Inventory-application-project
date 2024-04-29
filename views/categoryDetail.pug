@@ -1,16 +1,16 @@
 extends layout
 
 block content
-  h1 Category: #{category.name}
-  p= category.description
+  h1 Category: !{category.name}
+  p!= category.description
   h2 Items
   if category.imgUrl
-    img(src=category.imgUrl, alt=category.name)
+    img(src=category.imgUrl, alt!=category.name)
   if items.length
     ul
       each item in items
         li 
-          a(href=item.url) #{item.name} 
+          a(href=item.url) !{item.name} 
   else 
     p There are no items available for this category at the moment.
   hr

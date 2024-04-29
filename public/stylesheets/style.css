@@ -165,16 +165,13 @@ button {
   .category {
     display: flex;
     align-items: baseline;
-    justify-content: center;
     gap: 5px;
-
-    label {
-      font-weight: normal;
-    }
 
     label,
     [type='checkbox'] {
+      font-weight: normal;
       cursor: pointer;
+      margin-bottom: 0;
     }
   }
 }

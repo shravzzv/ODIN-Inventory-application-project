@@ -5,10 +5,10 @@ block content
 
   form(method="POST", enctype = "multipart/form-data")
     label(for="name") Name*:
-    input#name(type="text", placeholder='Action, Adventure, etc.', name='name', minLength='3', maxLength=32, required, autocomplete='on', value=(category===undefined ? '': category.name)) 
+    input#name(type="text", placeholder='Action, Adventure, etc.', name='name', minLength='3', maxLength=32, required, autocomplete='on', value!=(category===undefined ? '': category.name)) 
 
     label(for="description") Description*:
-    textarea#description(name="description", cols="30", rows="10", minLength='3', maxLength='500', required)= category===undefined ? '' : category.description
+    textarea#description(name="description", cols="30", rows="10", minLength='3', maxLength='500', required)!= category===undefined ? '' : category.description
 
     if category===undefined 
       input#file(type="file", name="file", required, accept='image/*')

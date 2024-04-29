@@ -6,6 +6,6 @@ block content
     ol
       each category in categories
         li
-          a(href=category.url) #{category.name}
+          a(href=category.url) !{category.name}
   else 
     p There are no categories available at the moment. 

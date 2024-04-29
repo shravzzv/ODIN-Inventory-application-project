@@ -85,6 +85,7 @@ exports.categoryCreatePost = [
   asyncHandler(async (req, res) => {
     // extract the validation errors
     const errors = validationResult(req)
+    const imageError = []
 
     // create Category object with sanitized data
     const category = new Category({
@@ -94,32 +95,19 @@ exports.categoryCreatePost = [
     })
 
     if (req.file) {
-      // handle invalid image file
       if (!req.file.mimetype.startsWith('image/')) {
-        fs.unlink(req.file.path, (err) => err && console.log(err))
-
-        const err = [new Error('Please upload an image.')]
-        if (!errors.isEmpty()) err.push(...errors.array())
-
-        res.render('categoryForm', {
-          title: 'Create Category',
-          category,
-          errors: err,
-        })
-        return
+        imageError.push(new Error('Please upload an image.'))
+      } else {
+        category.imgUrl = await cloudinaryUtils.getUploadedUrl(req.file.path)
       }
-
-      // handle valid image file
-      category.imgUrl = await cloudinaryUtils.getUploadedUrl(req.file.path)
       fs.unlink(req.file.path, (err) => err && console.log(err))
     }
 
-    if (!errors.isEmpty()) {
-      // render form again with sanitized value/error messages
+    if (!errors.isEmpty() || imageError.length) {
       res.render('categoryForm', {
         title: 'Create Category',
         category,
-        errors: errors.array(),
+        errors: [...errors.array(), ...imageError],
       })
     } else {
       await category.save()
@@ -150,7 +138,7 @@ exports.categoryDeleteGet = asyncHandler(async (req, res) => {
 exports.categoryDeletePost = asyncHandler(async (req, res) => {
   const [category, items] = await Promise.all([
     Category.findById(req.params.id).exec(),
-    Item.find({ category: req.params.id }, 'name description').exec(),
+    Item.find({ category: req.params.id }, 'name').exec(),
   ])
 
   if (items.length > 0) {
@@ -161,9 +149,7 @@ exports.categoryDeletePost = asyncHandler(async (req, res) => {
     })
   } else {
     await Promise.all([
-      cloudinaryUtils.deleteUploadedFile(
-        category.imgUrl.split('/').at(-1).split('.')[0]
-      ),
+      cloudinaryUtils.deleteUploadedFile(category.imgUrl),
       Category.findByIdAndDelete(req.body.categoryId),
     ])
     res.redirect('/inventory/categories')
@@ -211,6 +197,7 @@ exports.categoryUpdatePost = [
   // process request after validation and sanitization
   asyncHandler(async (req, res) => {
     const errors = validationResult(req)
+    const imageError = []
 
     // create new Category object with sanitized data
     const category = new Category({
@@ -221,37 +208,23 @@ exports.categoryUpdatePost = [
     })
 
     if (req.file) {
-      // handle invalid image file
       if (!req.file.mimetype.startsWith('image/')) {
-        fs.unlink(req.file.path, (err) => err && console.log(err))
-
-        const err = [new Error('Please upload an image.')]
-        if (!errors.isEmpty()) err.push(...errors.array())
-
-        res.render('categoryForm', {
-          title: 'Update Category',
-          category,
-          errors: err,
-        })
-        return
+        imageError.push(new Error('Please upload an image.'))
+      } else {
+        const [newImgUrl] = await Promise.all([
+          cloudinaryUtils.getUploadedUrl(req.file.path),
+          cloudinaryUtils.deleteUploadedFile(category.imgUrl),
+        ])
+        category.imgUrl = newImgUrl
       }
-
-      // handle valid image file
-      const [newImgUrl] = await Promise.all([
-        cloudinaryUtils.getUploadedUrl(req.file.path),
-        cloudinaryUtils.deleteUploadedFile(
-          category.imgUrl.split('/').at(-1).split('.')[0]
-        ),
-      ])
-      category.imgUrl = newImgUrl
       fs.unlink(req.file.path, (err) => err && console.log(err))
     }
 
-    if (!errors.isEmpty()) {
+    if (!errors.isEmpty() || imageError.length) {
       res.render('categoryForm', {
         title: 'Update Category',
         category,
-        errors: errors.array(),
+        errors: [...errors.array(), ...imageError],
       })
       return
     } else {
