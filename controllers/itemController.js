@@ -8,7 +8,7 @@ const fs = require('fs')
 
 // Display list of all Items.
 exports.itemList = asyncHandler(async (req, res) => {
-  const items = await Item.find({}, 'name').sort({ name: 1 }).exec()
+  const items = await Item.find({}, 'name titleImgUrl').sort({ name: 1 }).exec()
 
   res.render('itemList', {
     title: 'Items List',

@@ -62,7 +62,8 @@ ul {
 }
 
 ol {
-  &.categories {
+  &.categories,
+  &.items {
     display: grid;
     list-style-type: none;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -82,7 +83,7 @@ ol {
       box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px,
         rgba(0, 0, 0, 0.24) 0px 1px 2px;
 
-      img {
+      & > img {
         position: absolute;
         top: 0;
         left: 0;
@@ -102,6 +103,23 @@ ol {
         display: flex;
         align-items: center;
         justify-content: center;
+
+        img {
+          max-width: 90%;
+        }
+      }
+    }
+  }
+
+  &.items {
+    grid-gap: 10px;
+    li {
+      height: 80px;
+      border-radius: 10px;
+      background-image: linear-gradient(to top, #fbc2eb 0%, #a6c1ee 100%);
+
+      @media (prefers-color-scheme: dark) {
+        background: linear-gradient(to right, #2c5364, #203a43, #0f2027);
       }
     }
   }
