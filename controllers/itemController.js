@@ -180,7 +180,7 @@ exports.itemCreatePost = [
 
 // Display Item delete form on GET.
 exports.itemDeleteGet = asyncHandler(async (req, res) => {
-  const item = await Item.findById(req.params.id)
+  const item = await Item.findById(req.params.id, 'name titleImgUrl')
 
   if (item === null) {
     res.redirect('/inventory/items')
