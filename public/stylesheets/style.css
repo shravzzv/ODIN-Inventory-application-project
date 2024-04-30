@@ -262,6 +262,28 @@ form {
 ::selection {
   background-color: gold;
 }
+
+.custom-shape-divider-bottom-1714452620 {
+  width: 100%;
+  overflow: hidden;
+  line-height: 0;
+  transform: rotate(180deg);
+  svg {
+    position: relative;
+    display: block;
+    width: calc(100% + 1.3px);
+    height: 150px;
+    transform: rotateY(180deg);
+    @media (max-width: 767px) {
+      width: calc(100% + 1.3px);
+      height: 121px;
+    }
+  }
+  & .shape-fill {
+    fill: #f8e71c;
+  }
+}
+
 .itemDetail {
   .left {
     img {
