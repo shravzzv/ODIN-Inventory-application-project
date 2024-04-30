@@ -38,7 +38,9 @@ exports.categoryDetail = asyncHandler(async (req, res, next) => {
   // Get details of the category, and items of that category in parallel.
   const [category, items] = await Promise.all([
     Category.findById(req.params.id).sort({ name: 1 }).exec(),
-    Item.find({ category: req.params.id }, 'name').sort({ name: 1 }).exec(),
+    Item.find({ category: req.params.id }, 'name titleImgUrl')
+      .sort({ name: 1 })
+      .exec(),
   ])
 
   if (category === null) {
@@ -122,7 +124,7 @@ exports.categoryCreatePost = [
 exports.categoryDeleteGet = asyncHandler(async (req, res) => {
   const [category, items] = await Promise.all([
     Category.findById(req.params.id).exec(),
-    Item.find({ category: req.params.id }, 'name description').exec(),
+    Item.find({ category: req.params.id }, 'name titleImgUrl').exec(),
   ])
 
   if (category === null) {
@@ -140,7 +142,7 @@ exports.categoryDeleteGet = asyncHandler(async (req, res) => {
 exports.categoryDeletePost = asyncHandler(async (req, res) => {
   const [category, items] = await Promise.all([
     Category.findById(req.params.id).exec(),
-    Item.find({ category: req.params.id }, 'name').exec(),
+    Item.find({ category: req.params.id }, 'name titleImgUrl').exec(),
   ])
 
   if (items.length > 0) {

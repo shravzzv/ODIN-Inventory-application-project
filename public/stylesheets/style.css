@@ -86,7 +86,8 @@ ol {
         rgba(0, 0, 0, 0.24) 0px 1px 2px;
       transition: transform 300ms ease;
 
-      &:hover {
+      &:hover,
+      &:has(a:focus) {
         transform: scale(1.1);
       }
 
@@ -353,6 +354,38 @@ form {
   }
 }
 
+.categoryDetail {
+  > img {
+    border-radius: 20px;
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+  }
+
+  .buttons {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    margin: 10px 0px;
+
+    a {
+      button {
+        padding: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 300ms ease;
+        span {
+          display: none;
+        }
+
+        &:hover {
+          transform: scale(1.1);
+        }
+      }
+    }
+  }
+}
+
 @media (max-width: 767px) {
   main {
     padding: 0 20px;
@@ -514,6 +547,34 @@ form {
         }
       }
     }
+  }
+
+  .categoryDetail {
+    > img {
+      max-height: 50vh;
+      width: 100%;
+      object-fit: cover;
+      object-position: center;
+    }
+
+    .buttons {
+      margin-bottom: 15px;
+      a {
+        text-decoration: none;
+        button {
+          padding: 5px 15px;
+          gap: 5px;
+
+          span {
+            display: inline;
+          }
+        }
+      }
+    }
+  }
+
+  .itemDelete {
+    padding: 20px 0px;
   }
 }
 

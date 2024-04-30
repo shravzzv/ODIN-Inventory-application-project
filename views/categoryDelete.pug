@@ -5,9 +5,10 @@ block content
   if items.length
     p #[strong Delete the following items before attempting to delete this category.]
       h2 Items
-      ol
+      ol.items
         each item in items
-          li: a(href=item.url) !{item.name}
+          li
+            a(href=item.url): img(src=item.titleImgUrl, alt!=item.name)
   else 
     p Do you really want to delete this category?
     form(method="post") 
