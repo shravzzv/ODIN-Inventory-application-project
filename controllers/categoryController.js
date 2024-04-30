@@ -23,7 +23,9 @@ exports.index = asyncHandler(async (req, res) => {
 
 // Display list of all the Categories.
 exports.categoryList = asyncHandler(async (req, res) => {
-  const categories = await Category.find({}, 'name').sort({ name: 1 }).exec()
+  const categories = await Category.find({}, 'name imgUrl')
+    .sort({ name: 1 })
+    .exec()
 
   res.render('categoryList', {
     title: 'Category List',
