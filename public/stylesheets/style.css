@@ -263,10 +263,12 @@ form {
 
 :disabled {
   cursor: not-allowed;
+  opacity: 38%;
 }
 
 ::selection {
   background-color: gold;
+  color: black;
 }
 
 .custom-shape-divider-bottom-1714452620 {
