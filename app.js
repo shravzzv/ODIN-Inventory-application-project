@@ -38,9 +38,10 @@ app.use(
     useDefaults: true,
     directives: {
       'script-src': ["'self'"],
-      'style-src': ["'self'", 'cdnjs.cloudflare.com', 'fonts.googleapis.com'],
-      'img-src': ["'self'", 'res.cloudinary.com'],
       'font-src': ['fonts.gstatic.com'],
+      'img-src': ["'self'", 'res.cloudinary.com'],
+      'media-src': ["'self'", 'res.cloudinary.com'],
+      'style-src': ["'self'", 'cdnjs.cloudflare.com', 'fonts.googleapis.com'],
     },
     reportOnly: false,
   })
