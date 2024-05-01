@@ -8,16 +8,16 @@ const fs = require('fs')
 
 // Inventory Home page
 exports.index = asyncHandler(async (req, res) => {
-  // Get total counts of categories and items in parallel
-  const [categoriesCount, itemsCount] = await Promise.all([
-    Category.countDocuments({}).exec(),
-    Item.countDocuments({}).exec(),
+  const [featuredCategories, featuredItems] = await Promise.all([
+    Category.find({}, 'name imgUrl').limit(4).exec(),
+    Item.find({}, 'name heroImgUrl').sort({ name: 1 }).limit(2).exec(),
+    // todo: make featured items more concrete
   ])
 
   res.render('index', {
-    title: 'Inventory Home',
-    categoriesCount,
-    itemsCount,
+    title: 'Video Games Inventory',
+    featuredCategories,
+    featuredItems,
   })
 })
 
