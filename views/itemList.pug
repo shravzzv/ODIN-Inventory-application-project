@@ -1,10 +1,11 @@
 extends layout
 block content
-  h1= title
   if items.length
-    ol
+    ol.items
       each item in items
-        li 
-          a(href=item.url) #{item.name}
+        li
+          a(href=item.url): img(src=item.titleImgUrl, alt!=item.name)
   else
     p There are no items available at the moment. 
+  
+//- item.name is using un escaped interpolation because it'll only ever use sanitized data from the database. If escaped, renders html entities on the UI!

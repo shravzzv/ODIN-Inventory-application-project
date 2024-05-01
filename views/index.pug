@@ -1,11 +1,30 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #[em Video Games Inventory], an Express website which contains details about some of your favorite games.
+  section.hero
+    h1!= title
+    p The adventure never ends: Expand your world, one game at a time.
+    a.cta(href="inventory/categories") 
+      button Explore categories
+    video(src="https://res.cloudinary.com/dmt9s5xlh/video/upload/v1714531968/2759477-uhd_2560_1440_30fps_axgoje.mp4", loop, autoplay, muted, disablepictureinpicture, poster) 
 
-  h2 Dynamic content
-  p The inventory has the following record counts: 
-  ul
-    li #[strong items:] !{itemsCount}
-    li #[strong categories:] !{categoriesCount}
+  section.featuredCategories
+    .left
+      img(src='https://res.cloudinary.com/dmt9s5xlh/image/upload/v1714537827/Pngtree_cyberpunk_future_movie_game_character_9015368_gnex32.png', alt='a video game character')
+    .right
+      h2 Featured Categories
+      ol.categories
+        each category in featuredCategories
+          li
+            img(src=category.imgUrl, alt=!category.name)
+            a(href=category.url) !{category.name}
+
+  section.featuredItems
+    .left
+      img(src='https://res.cloudinary.com/dmt9s5xlh/image/upload/v1714538874/file__1_-transformed_y9fkc7.png', alt='a video game character')
+    .right
+      h2 Featured Games
+      ol
+        each item in featuredItems
+          li
+            a(href=item.url): img(src=item.heroImgUrl, alt!=item.name)

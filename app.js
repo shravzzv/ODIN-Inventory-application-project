@@ -35,9 +35,15 @@ app.use(compression())
 // Set CSP headers to allow our normalize.css to be served
 app.use(
   helmet.contentSecurityPolicy({
+    useDefaults: true,
     directives: {
-      'script-src': ["'self'", 'cdnjs.cloudflare.com', 'www.w3.org'],
+      'script-src': ["'self'"],
+      'font-src': ['fonts.gstatic.com'],
+      'img-src': ["'self'", 'res.cloudinary.com'],
+      'media-src': ["'self'", 'res.cloudinary.com'],
+      'style-src': ["'self'", 'cdnjs.cloudflare.com', 'fonts.googleapis.com'],
     },
+    reportOnly: false,
   })
 )
 // Set up rate limiter: maximum of 500 requests per minute

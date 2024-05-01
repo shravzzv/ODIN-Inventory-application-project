@@ -1,7 +1,8 @@
 extends layout
 
 block content
-  h1 Delete Item: #{item.name}
+  img(src=item.titleImgUrl, alt!=item.name)
+  //- item.name is un escaped because it'll only ever use sanitized data from the database. If escaped, might show html entities to the user!
   p Are you sure you want to delete this item?
 
   form(method="post")

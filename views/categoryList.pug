@@ -1,11 +1,11 @@
 extends layout
 
 block content
-  h1= title
   if categories.length
-    ol
+    ol.categories
       each category in categories
         li
-          a(href=category.url) #{category.name}
+          img(src=category.imgUrl, alt=!category.name)
+          a(href=category.url) !{category.name}
   else 
     p There are no categories available at the moment. 

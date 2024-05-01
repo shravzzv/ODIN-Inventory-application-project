@@ -1,25 +1,31 @@
+const { body, validationResult } = require('express-validator')
+const cloudinaryUtils = require('../utils/cloudinary.util')
+const asyncHandler = require('express-async-handler')
+const multerUtils = require('../utils/multer.util')
 const Category = require('../models/category')
 const Item = require('../models/item')
-const asyncHandler = require('express-async-handler')
-const { body, validationResult } = require('express-validator')
+const fs = require('fs')
 
+// Inventory Home page
 exports.index = asyncHandler(async (req, res) => {
-  // Get total counts of categories and items in parallel
-  const [categoriesCount, itemsCount] = await Promise.all([
-    Category.countDocuments({}).exec(),
-    Item.countDocuments({}).exec(),
+  const [featuredCategories, featuredItems] = await Promise.all([
+    Category.find({}, 'name imgUrl').limit(4).exec(),
+    Item.find({}, 'name heroImgUrl').sort({ name: 1 }).limit(2).exec(),
+    // todo: make featured items more concrete
   ])
 
   res.render('index', {
-    title: 'Inventory Home',
-    categoriesCount,
-    itemsCount,
+    title: 'Video Games Inventory',
+    featuredCategories,
+    featuredItems,
   })
 })
 
 // Display list of all the Categories.
 exports.categoryList = asyncHandler(async (req, res) => {
-  const categories = await Category.find({}, 'name').sort({ name: 1 }).exec()
+  const categories = await Category.find({}, 'name imgUrl')
+    .sort({ name: 1 })
+    .exec()
 
   res.render('categoryList', {
     title: 'Category List',
@@ -32,7 +38,9 @@ exports.categoryDetail = asyncHandler(async (req, res, next) => {
   // Get details of the category, and items of that category in parallel.
   const [category, items] = await Promise.all([
     Category.findById(req.params.id).sort({ name: 1 }).exec(),
-    Item.find({ category: req.params.id }, 'name').sort({ name: 1 }).exec(),
+    Item.find({ category: req.params.id }, 'name titleImgUrl')
+      .sort({ name: 1 })
+      .exec(),
   ])
 
   if (category === null) {
@@ -57,6 +65,9 @@ exports.categoryCreateGet = (req, res) => {
 
 // Handle Category create on POST.
 exports.categoryCreatePost = [
+  // upload file using multer
+  multerUtils.upload.single('file'),
+
   // validate and sanitize fields.
   body('name')
     .trim()
@@ -78,19 +89,29 @@ exports.categoryCreatePost = [
   asyncHandler(async (req, res) => {
     // extract the validation errors
     const errors = validationResult(req)
+    const imageError = []
 
     // create Category object with sanitized data
     const category = new Category({
       name: req.body.name,
       description: req.body.description,
+      imgUrl: req.body.imgUrl || '',
     })
 
-    if (!errors.isEmpty()) {
-      // render form again with sanitized value/error messages
+    if (req.file) {
+      if (!req.file.mimetype.startsWith('image/')) {
+        imageError.push(new Error('Please upload an image.'))
+      } else {
+        category.imgUrl = await cloudinaryUtils.getUploadedUrl(req.file.path)
+      }
+      fs.unlink(req.file.path, (err) => err && console.log(err))
+    }
+
+    if (!errors.isEmpty() || imageError.length) {
       res.render('categoryForm', {
         title: 'Create Category',
         category,
-        errors: errors.array(),
+        errors: [...errors.array(), ...imageError],
       })
     } else {
       await category.save()
@@ -103,7 +124,7 @@ exports.categoryCreatePost = [
 exports.categoryDeleteGet = asyncHandler(async (req, res) => {
   const [category, items] = await Promise.all([
     Category.findById(req.params.id).exec(),
-    Item.find({ category: req.params.id }, 'name description').exec(),
+    Item.find({ category: req.params.id }, 'name titleImgUrl').exec(),
   ])
 
   if (category === null) {
@@ -121,7 +142,7 @@ exports.categoryDeleteGet = asyncHandler(async (req, res) => {
 exports.categoryDeletePost = asyncHandler(async (req, res) => {
   const [category, items] = await Promise.all([
     Category.findById(req.params.id).exec(),
-    Item.find({ category: req.params.id }, 'name description').exec(),
+    Item.find({ category: req.params.id }, 'name titleImgUrl').exec(),
   ])
 
   if (items.length > 0) {
@@ -131,7 +152,10 @@ exports.categoryDeletePost = asyncHandler(async (req, res) => {
       items,
     })
   } else {
-    await Category.findByIdAndDelete(req.body.categoryId)
+    await Promise.all([
+      cloudinaryUtils.deleteUploadedFile(category.imgUrl),
+      Category.findByIdAndDelete(req.body.categoryId),
+    ])
     res.redirect('/inventory/categories')
   }
 })
@@ -154,6 +178,9 @@ exports.categoryUpdateGet = asyncHandler(async (req, res, next) => {
 
 // Handle Category update on POST.
 exports.categoryUpdatePost = [
+  // upload file using multer
+  multerUtils.upload.single('file'),
+
   // validate and sanitize the name and description fields
   body('name')
     .trim()
@@ -174,19 +201,34 @@ exports.categoryUpdatePost = [
   // process request after validation and sanitization
   asyncHandler(async (req, res) => {
     const errors = validationResult(req)
+    const imageError = []
 
     // create new Category object with sanitized data
     const category = new Category({
       _id: req.params.id,
       name: req.body.name,
       description: req.body.description,
+      imgUrl: req.body.imgUrl,
     })
 
-    if (!errors.isEmpty()) {
+    if (req.file) {
+      if (!req.file.mimetype.startsWith('image/')) {
+        imageError.push(new Error('Please upload an image.'))
+      } else {
+        const [newImgUrl] = await Promise.all([
+          cloudinaryUtils.getUploadedUrl(req.file.path),
+          cloudinaryUtils.deleteUploadedFile(category.imgUrl),
+        ])
+        category.imgUrl = newImgUrl
+      }
+      fs.unlink(req.file.path, (err) => err && console.log(err))
+    }
+
+    if (!errors.isEmpty() || imageError.length) {
       res.render('categoryForm', {
         title: 'Update Category',
         category,
-        errors: errors.array(),
+        errors: [...errors.array(), ...imageError],
       })
       return
     } else {
@@ -199,17 +241,3 @@ exports.categoryUpdatePost = [
     }
   }),
 ]
-
-// * the id in the referencing field isn't the same as the _id of the reference field. They are different, but referencing still works.
-// to reference, directly pasting the _id from a category into the document to the category field of an item wouldn't work.
-/**
- * const category1 = new Category({})
- * const category2 = new Category({})
- *
- * const item = new Items({
- *  category: category1._id
- *  // or
- *  category: [category1._id, category2._id]
- * })
- *
- */
