@@ -8,10 +8,25 @@ const fs = require('fs')
 
 // Inventory Home page
 exports.index = asyncHandler(async (req, res) => {
+  // these _ids are the same in all the databases being used.
+  const featuredCategoriesIds = [
+    '662cb7f8a43202d7106fff00', // Open World
+    '662cb747a43202d7106ffef2', // Action
+    '662cb788a43202d7106ffef6', // Adventure
+    '662cb881a43202d7106fff0c', // Shooter
+  ]
+
+  const featuredItemsIds = [
+    '662f55ac2930083cce602350', // GTA V
+    '662f60629d86b4bfae708bee', // GTA IV
+  ]
+
   const [featuredCategories, featuredItems] = await Promise.all([
-    Category.find({}, 'name imgUrl').limit(4).exec(),
-    Item.find({}, 'name heroImgUrl').sort({ name: 1 }).limit(2).exec(),
-    // todo: make featured items more concrete
+    Category.find(
+      { _id: { $in: featuredCategoriesIds } },
+      'name imgUrl'
+    ).exec(),
+    Item.find({ _id: { $in: featuredItemsIds } }, 'name heroImgUrl').exec(),
   ])
 
   res.render('index', {
@@ -37,7 +52,7 @@ exports.categoryList = asyncHandler(async (req, res) => {
 exports.categoryDetail = asyncHandler(async (req, res, next) => {
   // Get details of the category, and items of that category in parallel.
   const [category, items] = await Promise.all([
-    Category.findById(req.params.id).sort({ name: 1 }).exec(),
+    Category.findById(req.params.id).exec(),
     Item.find({ category: req.params.id }, 'name titleImgUrl')
       .sort({ name: 1 })
       .exec(),
@@ -124,11 +139,21 @@ exports.categoryCreatePost = [
 exports.categoryDeleteGet = asyncHandler(async (req, res) => {
   const [category, items] = await Promise.all([
     Category.findById(req.params.id).exec(),
-    Item.find({ category: req.params.id }, 'name titleImgUrl').exec(),
+    Item.find(
+      { category: req.params.id },
+      'name titleImgUrl isFeatured'
+    ).exec(),
   ])
 
   if (category === null) {
     res.redirect('/inventory/categories')
+    return
+  }
+
+  // if the category is featured, don't allow deletion.
+  if (category.isFeatured) {
+    res.redirect(`/inventory/category/${req.params.id}`)
+    return
   }
 
   res.render('categoryDelete', {
@@ -168,6 +193,12 @@ exports.categoryUpdateGet = asyncHandler(async (req, res, next) => {
     const err = new Error('Category not found')
     err.status = 404
     return next(err)
+  }
+
+  // if the category is featured, don't allow update.
+  if (category.isFeatured) {
+    res.redirect(`/inventory/category/${req.params.id}`)
+    return
   }
 
   res.render('categoryForm', {

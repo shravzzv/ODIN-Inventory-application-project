@@ -180,10 +180,17 @@ exports.itemCreatePost = [
 
 // Display Item delete form on GET.
 exports.itemDeleteGet = asyncHandler(async (req, res) => {
-  const item = await Item.findById(req.params.id, 'name titleImgUrl')
+  const item = await Item.findById(req.params.id, 'name titleImgUrl isFeatured')
 
   if (item === null) {
     res.redirect('/inventory/items')
+    return
+  }
+
+  // if the item is featured, don't allow deletion.
+  if (item.isFeatured) {
+    res.redirect(`/inventory/item/${req.params.id}`)
+    return
   }
 
   res.render('itemDelete', {
@@ -215,6 +222,12 @@ exports.itemUpdateGet = asyncHandler(async (req, res, next) => {
     const err = new Error('Item not found!')
     err.status = 404
     return next(err)
+  }
+
+  // if the item is featured, don't allow update.
+  if (item.isFeatured) {
+    res.redirect(`/inventory/item/${req.params.id}`)
+    return
   }
 
   // mark selected categories as checked
