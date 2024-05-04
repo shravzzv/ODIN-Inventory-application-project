@@ -6,7 +6,9 @@ block content
     p The adventure never ends: Expand your world, one game at a time.
     a.cta(href="inventory/categories") 
       button Explore categories
-    video(src="https://res.cloudinary.com/dmt9s5xlh/video/upload/v1714531968/2759477-uhd_2560_1440_30fps_axgoje.mp4", loop, autoplay, muted, disablepictureinpicture, poster) 
+    video(loop, autoplay, muted, disablepictureinpicture, poster, playsinline, preload="auto")
+      source(src="https://res.cloudinary.com/dmt9s5xlh/video/upload/v1714816621/compressed_10mb_anuhym.mp4" type="video/mp4" media="(max-width: 767px)")
+      source(src="https://res.cloudinary.com/dmt9s5xlh/video/upload/v1714531968/2759477-uhd_2560_1440_30fps_axgoje.mp4" type="video/mp4" media="all")
 
   section.featuredCategories
     .left
