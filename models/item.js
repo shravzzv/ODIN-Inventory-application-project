@@ -22,6 +22,8 @@ const ItemSchema = new Schema({
   releaseDate: { type: Date },
 
   rating: { type: Number, min: 0, max: 5, default: 1 },
+
+  isFeatured: { type: Boolean, default: false },
 })
 
 ItemSchema.virtual('url').get(function () {
